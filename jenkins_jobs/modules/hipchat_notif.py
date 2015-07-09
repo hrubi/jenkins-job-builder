@@ -74,7 +74,6 @@ Example:
 # and this object is passed to the HipChat() class initialiser.
 
 import logging
-import pkg_resources
 import sys
 import xml.etree.ElementTree as XML
 
@@ -133,26 +132,12 @@ class HipChat(jenkins_jobs.modules.base.Base):
                 logger.warning("'room' is deprecated, please use 'rooms'")
                 hipchat['rooms'] = [hipchat['room']]
 
-        plugin_info = self.registry.get_plugin_info("Jenkins HipChat Plugin")
-        version = pkg_resources.parse_version(plugin_info.get('version', '0'))
-
-        if version >= pkg_resources.parse_version("0.1.9"):
-            publishers = xml_parent.find('publishers')
-            if publishers is None:
-                publishers = XML.SubElement(xml_parent, 'publishers')
-
-            logger.warning(
-                "'hipchat' module supports the old plugin versions <1.9, "
-                "newer versions are supported via the 'publishers' module. "
-                "Please upgrade you job definition")
-            return self.registry.dispatch('publisher', publishers, data)
-        else:
-            properties = xml_parent.find('properties')
-            if properties is None:
-                properties = XML.SubElement(xml_parent, 'properties')
-            pdefhip = XML.SubElement(properties,
-                                     'jenkins.plugins.hipchat.'
-                                     'HipChatNotifier_-HipChatJobProperty')
+        properties = xml_parent.find('properties')
+        if properties is None:
+            properties = XML.SubElement(xml_parent, 'properties')
+        pdefhip = XML.SubElement(properties,
+                                 'jenkins.plugins.hipchat.'
+                                 'HipChatNotifier_-HipChatJobProperty')
 
         room = XML.SubElement(pdefhip, 'room')
         if 'rooms' in hipchat:
@@ -166,17 +151,15 @@ class HipChat(jenkins_jobs.modules.base.Base):
         XML.SubElement(pdefhip, 'startNotification').text = str(
             hipchat.get('notify-start', hipchat.get('start-notify',
                                                     False))).lower()
-
-        if version >= pkg_resources.parse_version("0.1.5"):
-            mapping = [
-                ('notify-success', 'notifySuccess', False),
-                ('notify-aborted', 'notifyAborted', False),
-                ('notify-not-built', 'notifyNotBuilt', False),
-                ('notify-unstable', 'notifyUnstable', False),
-                ('notify-failure', 'notifyFailure', False),
-                ('notify-back-to-normal', 'notifyBackToNormal', False)]
-            convert_mapping_to_xml(pdefhip,
-                hipchat, mapping, fail_required=True)
+        mapping = [
+            ('notify-success', 'notifySuccess', False),
+            ('notify-aborted', 'notifyAborted', False),
+            ('notify-not-built', 'notifyNotBuilt', False),
+            ('notify-unstable', 'notifyUnstable', False),
+            ('notify-failure', 'notifyFailure', False),
+            ('notify-back-to-normal', 'notifyBackToNormal', False)]
+        convert_mapping_to_xml(pdefhip,
+            hipchat, mapping, fail_required=True)
 
         publishers = xml_parent.find('publishers')
         if publishers is None:
