@@ -79,7 +79,6 @@ import sys
 import xml.etree.ElementTree as XML
 
 from six.moves import configparser
-from jenkins_jobs.modules.publishers import hipchat as hipchat_pub
 
 import jenkins_jobs.errors
 import jenkins_jobs.modules.base
@@ -144,7 +143,7 @@ class HipChat(jenkins_jobs.modules.base.Base):
                 "'hipchat' module supports the old plugin versions <1.9, "
                 "newer versions are supported via the 'publishers' module. "
                 "Please upgrade you job definition")
-            return hipchat_pub(self.registry, publishers, hipchat)
+            return self.registry.dispatch('publisher', publishers, data)
         else:
             properties = xml_parent.find('properties')
             if properties is None:
