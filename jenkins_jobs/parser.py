@@ -373,6 +373,7 @@ class YamlParser(object):
                 raise
 
             params.update(expanded_values)
+            params['template-name'] = utils.escape_braces(template_name)
             try:
                 params = deep_format(params, params)
             except Exception:
@@ -387,7 +388,6 @@ class YamlParser(object):
                 if key not in params:
                     params[key] = template[key]
 
-            params['template-name'] = template_name
             try:
                 expanded = deep_format(
                     template, params,

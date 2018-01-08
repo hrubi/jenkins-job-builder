@@ -147,7 +147,6 @@ import functools
 import io
 import logging
 import os
-import re
 
 import jinja2
 import yaml
@@ -156,6 +155,9 @@ from yaml.representer import BaseRepresenter
 from yaml import YAMLObject
 
 from collections import OrderedDict
+
+
+from jenkins_jobs import utils
 
 
 logger = logging.getLogger(__name__)
@@ -288,7 +290,7 @@ class LocalLoader(OrderedConstructor, LocalAnchorLoader):
         self.search_path.append(os.path.normpath(os.path.curdir))
 
     def _escape(self, data):
-        return re.sub(r'({|})', r'\1\1', data)
+        return utils.escape_braces(data)
 
 
 class LocalDumper(OrderedRepresenter, yaml.Dumper):
